@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeFlix Studio</title>
+    
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><rect width=%22100%22 height=%22100%22 rx=%2225%22 fill=%22url(%23g)%22/><path d=%22M30 30L50 50L30 70M60 65H75%22 stroke=%22white%22 stroke-width=%2210%22 stroke-linecap=%22round%22 stroke-linejoin=%22round%22 fill=%22none%22/><defs><linearGradient id=%22g%22 x1=%220%25%22 y1=%220%25%22 x2=%22100%25%22 y2=%22100%25%22><stop offset=%220%25%22 stop-color=%22%236366f1%22/><stop offset=%22100%25%22 stop-color=%22%23a855f7%22/></linearGradient></defs></svg>">
+
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;700&family=JetBrains+Mono:wght@400;500;700&family=Source+Code+Pro:wght@400;500;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-javascript.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-css.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-clike.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-lua.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-markup.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-go.min.js"></script>
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        ::-webkit-scrollbar { width: 4px; height: 4px; }
+        ::-webkit-scrollbar-track { background: #0f172a; }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+        
+        #canvasScaleContainer {
+            transform-origin: center center;
+            will-change: transform;
+        }
+    </style>
+</head>
+<body class="bg-[#070a12] text-slate-100 h-screen w-screen flex flex-col selection:bg-indigo-500/30 overflow-hidden select-none">
+
+    <header class="border-b border-slate-800 bg-[#0f172a]/80 backdrop-blur px-6 py-3 flex items-center justify-between z-50 shrink-0 h-[60px]">
+        <div class="flex items-center gap-3">
+            <div class="bg-gradient-to-tr from-indigo-500 to-purple-500 p-1.5 rounded-lg shadow-lg shadow-indigo-500/20">
+                <i data-lucide="video" class="w-4 h-4 text-white"></i>
+            </div>
+            <div>
+                <h1 class="text-sm font-bold tracking-tight bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">CodeFlix Studio Pro</h1>
+                <p class="text-[10px] text-slate-400">High-Fidelity Native 1920x1080 Code Vector Compiling</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-4">
+            <span class="text-[10px] px-2 py-0.5 bg-slate-900 border border-slate-800 text-slate-400 rounded-full flex items-center gap-1.5">
+                <span class="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse"></span> Ultra Edition Build Active
+            </span>
+        </div>
+    </header>
+
+    <main class="flex-1 flex overflow-hidden h-[calc(100vh-60px)] w-full">
+        
+        <section class="w-[400px] border-r border-slate-800 bg-[#0a0d16] flex flex-col overflow-hidden shrink-0 h-full">
+            
+            <div class="flex-1 overflow-y-auto p-4 flex flex-col gap-4">
+                
+                <div class="flex flex-col gap-1.5">
+                    <div class="flex justify-between items-center">
+                        <label class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                            <i data-lucide="code-2" class="w-3.5 h-3.5 text-indigo-400"></i> Code Document Buffer
+                        </label>
+                        <span id="charCountBadge" class="text-[10px] bg-slate-900 px-1.5 py-0.5 rounded border border-slate-800 text-slate-400">0 chars</span>
+                    </div>
+                    <textarea id="codeInput" rows="5" class="w-full bg-[#0f172a] border border-slate-800 rounded-lg p-2.5 font-['JetBrains_Mono'] text-xs focus:outline-none focus:border-indigo-500 transition text-slate-300 resize-none" placeholder="Enter script elements..."></textarea>
+                </div>
+
+                <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 flex flex-col gap-2.5">
+                    <label class="text-[11px] font-semibold uppercase tracking-wider text-slate-400 flex items-center gap-1.5">
+                        <i data-lucide="layers" class="w-3.5 h-3.5 text-amber-400"></i> Overflow Handling Engine
+                    </label>
+                    <div class="grid grid-cols-2 gap-2">
+                        <button id="modeScaleBtn" class="px-2 py-1.5 text-[11px] font-medium rounded-md border bg-indigo-600/10 border-indigo-500 text-indigo-300 transition-all flex items-center justify-center gap-1 cursor-pointer">
+                            <i data-lucide="minimize" class="w-3 h-3"></i> Auto-Scale
+                        </button>
+                        <button id="modeScrollBtn" class="px-2 py-1.5 text-[11px] font-medium rounded-md border bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200 transition-all flex items-center justify-center gap-1 cursor-pointer">
+                            <i data-lucide="chevrons-up" class="w-3 h-3"></i> Auto-Scroll
+                        </button>
+                    </div>
+                    
+                    <div id="scaleConfigSubpanel" class="flex flex-col gap-1.5 mt-0.5">
+                        <div class="flex justify-between text-[11px] text-slate-400">
+                            <span>Safe Character Threshold</span>
+                            <span id="charLimitVal" class="text-indigo-400 font-medium">1200</span>
+                        </div>
+                        <input type="range" id="charLimitSlider" min="300" max="2500" value="1200" class="h-1 bg-slate-800 rounded appearance-none cursor-pointer accent-indigo-500">
+                    </div>
+                    <div id="scrollConfigSubpanel" class="hidden text-[10px] text-slate-400 mt-0.5 bg-slate-950 p-2 rounded border border-slate-800/60">
+                        <i data-lucide="terminal" class="inline w-3 h-3 text-amber-400 mr-1"></i> Locked font size. Dynamic upward canvas auto-scroll triggers when overflowing code lines boundaries.
+                    </div>
+                </div>
+
+                <div class="flex flex-col gap-3.5">
+                    
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[11px] text-slate-400">Language Core</label>
+                            <select id="languageSelect" class="bg-[#0f172a] border border-slate-800 rounded-md px-2 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-indigo-500">
+                                <option value="lua" selected>Lua Engine</option>
+                                <option value="javascript">JavaScript (ES6)</option>
+                                <option value="python">Python 3</option>
+                                <option value="css">CSS Sheets</option>
+                                <option value="clike">C++ / C Core</option>
+                                <option value="markup">HTML Structure</option>
+                                <option value="go">Go Language</option>
+                            </select>
+                        </div>
+                        
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[11px] text-slate-400">Color Theme Variant</label>
+                            <select id="themeSelect" class="bg-[#0f172a] border border-slate-800 rounded-md px-2 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-indigo-500">
+                                <option value="dracula" selected>Dracula Standard</option>
+                                <option value="onedark">One Dark Pro</option>
+                                <option value="vscode">VS Code Charcoal</option>
+                                <option value="tokyonight">Tokyo Night Storm</option>
+                                <option value="cyberpunk">Cyberpunk 2077</option>
+                                <option value="monokai">Monokai Retro</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[11px] text-slate-400">Font Family Stack</label>
+                            <select id="fontSelect" class="bg-[#0f172a] border border-slate-800 rounded-md px-2 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-indigo-500">
+                                <option value="JetBrains Mono">JetBrains Mono</option>
+                                <option value="Fira Code">Fira Code</option>
+                                <option value="Source Code Pro">Source Code Pro</option>
+                            </select>
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[11px] text-slate-400 flex justify-between">
+                                <span>Base Font Size</span>
+                                <span id="fontSizeVal" class="text-indigo-400 font-medium">18px</span>
+                            </label>
+                            <input type="range" id="fontSizeSlider" min="14" max="28" value="18" class="h-1 bg-slate-800 rounded appearance-none cursor-pointer accent-indigo-500 mt-1">
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2.5 border-t border-slate-800/60 pt-3">
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[11px] text-slate-400 flex justify-between">
+                                <span>Window Width</span>
+                                <span id="frameWidthVal" class="text-emerald-400 font-medium">1200px</span>
+                            </label>
+                            <input type="range" id="frameWidthSlider" min="800" max="1700" value="1200" class="h-1 bg-slate-800 rounded appearance-none cursor-pointer accent-emerald-400 mt-1">
+                        </div>
+                        <div class="flex flex-col gap-1">
+                            <label class="text-[11px] text-slate-400 flex justify-between">
+                                <span>Window Height</span>
+                                <span id="frameHeightVal" class="text-emerald-400 font-medium">700px</span>
+                            </label>
+                            <input type="range" id="frameHeightSlider" min="400" max="950" value="700" class="h-1 bg-slate-800 rounded appearance-none cursor-pointer accent-emerald-400 mt-1">
+                        </div>
+                    </div>
+
+                    <div class="flex flex-col gap-1 border-t border-slate-800/60 pt-3">
+                        <label class="text-[11px] text-slate-400">Stage Backdrop Canvas Wrapper</label>
+                        <select id="bgGradientSelect" class="bg-[#0f172a] border border-slate-800 rounded-md px-2 py-1.5 text-xs text-slate-300 focus:outline-none focus:border-indigo-500">
+                            <option value="linear-gradient(135deg, #667eea 0%, #764ba2 100%)" selected>Sunset Indigo (Purple/Blue)</option>
+                            <option value="linear-gradient(135deg, #ff0844 0%, #ffb199 100%)">Warm Flame (Red/Orange)</option>
+                            <option value="linear-gradient(135deg, #0f2027 0%, #203a43 50%, #2c5364 100%)">Deep Ocean (Dark Slate)</option>
+                            <option value="linear-gradient(135deg, #111827 0%, #1f2937 100%)">Minimalist Carbon (Black Matte)</option>
+                            <option value="linear-gradient(135deg, #020617 0%, #064e3b 100%)">Neon Matrix (Dark Acid Cyber)</option>
+                            <option value="linear-gradient(135deg, #ff9a9e 0%, #fecfef 99%, #fecfef 100%)">Cotton Candy (Soft Pastel Sky)</option>
+                            <option value="linear-gradient(135deg, #051937 0%, #004d7a 40%, #008793 70%, #00bf72 100%)">Sublime Aurora (Teal Spectrum)</option>
+                            <option value="linear-gradient(135deg, #1e1e24 0%, #2a2b3d 50%, #111116 100%)">Monochrome Noir (Slate Grayscale)</option>
+                        </select>
+                    </div>
+
+                    <div class="flex flex-col gap-1">
+                        <label class="text-[11px] text-slate-400 flex justify-between">
+                            <span>Typing Frequency Speed (CPS)</span>
+                            <span id="speedVal" class="text-purple-400 font-medium">25 char/s</span>
+                        </label>
+                        <input type="range" id="speedSlider" min="5" max="80" value="25" class="h-1 bg-slate-800 rounded appearance-none cursor-pointer accent-purple-400 mt-1">
+                    </div>
+
+                    <div class="flex items-center justify-between bg-slate-900 p-2.5 rounded-lg border border-slate-800/80 mb-2">
+                        <div class="flex flex-col">
+                            <span class="text-[11px] font-medium text-slate-200">macOS Frame window</span>
+                            <span class="text-[9px] text-slate-400">Adds window dots chrome bar</span>
+                        </div>
+                        <label class="relative inline-flex items-center cursor-pointer">
+                            <input type="checkbox" id="macOSFrameToggle" checked class="sr-only peer">
+                            <div class="w-7 h-3.5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-slate-400 after:border-slate-300 after:border after:rounded-full after:h-2.5 after:w-2.5 after:transition-all peer-checked:bg-indigo-600 peer-checked:after:bg-white"></div>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-slate-800 bg-[#080b12] shrink-0 w-full">
+                <button id="generateBtn" class="w-full bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 text-white font-semibold py-2.5 px-4 rounded-xl shadow-lg shadow-indigo-500/10 transition-all flex items-center justify-center gap-2 cursor-pointer group disabled:opacity-50 disabled:cursor-not-allowed text-xs">
+                    <i data-lucide="play" class="w-3.5 h-3.5 group-hover:scale-110 transition-transform" id="btnIcon"></i>
+                    <span id="btnText">Compile High-Fidelity MP4</span>
+                </button>
+                
+                <div id="progressContainer" class="hidden mt-2.5 bg-slate-950 border border-slate-800 rounded-xl p-2">
+                    <div class="flex justify-between text-[10px] mb-1">
+                        <span class="text-slate-400">Rendering Frame Buffers...</span>
+                        <span id="progressPercent" class="text-indigo-400 font-semibold">0%</span>
+                    </div>
+                    <div class="w-full bg-slate-800 h-1 rounded-full overflow-hidden">
+                        <div id="progressBar" class="bg-gradient-to-r from-indigo-500 to-purple-500 h-1 w-0"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="studioTheater" class="flex-1 bg-[#05070c] p-6 flex items-center justify-center relative overflow-hidden h-full">
+            <div class="absolute top-4 left-5 text-[11px] font-semibold uppercase tracking-wider text-slate-500 flex items-center gap-2 z-10">
+                <i data-lucide="monitor" class="w-3.5 h-3.5 text-slate-400"></i> High-Fidelity Theater Monitor Viewport
+            </div>
+
+            <div id="canvasScaleContainer" class="shadow-2xl border border-slate-800/60 bg-slate-950 rounded-xl overflow-hidden shrink-0">
+                <canvas id="videoCanvas" width="1920" height="1080" class="block bg-slate-950"></canvas>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        lucide.createIcons();
+
+        // Extended Custom Design Palette Themes Matrix Array Maps
+        const themes = {
+            dracula: { bg: "#282a36", text: "#f8f8f2", comment: "#6272a4", keyword: "#ff79c6", string: "#f1fa8c", function: "#50fa7b", number: "#bd93f9" },
+            onedark: { bg: "#282c34", text: "#abb2bf", comment: "#5c6370", keyword: "#c678dd", string: "#98c379", function: "#61afef", number: "#d19a66" },
+            vscode: { bg: "#1e1e1e", text: "#d4d4d4", comment: "#6a9955", keyword: "#569cd6", string: "#ce9178", function: "#dcdcaa", number: "#b5cea8" },
+            tokyonight: { bg: "#1a1b26", text: "#a9b1d6", comment: "#565f89", keyword: "#bb9af7", string: "#9ece6a", function: "#7aa2f7", number: "#ff9e64" },
+            cyberpunk: { bg: "#000b19", text: "#00f0ff", comment: "#005b96", keyword: "#fcee0a", string: "#ff0055", function: "#39ff14", number: "#fafafa" },
+            monokai: { bg: "#272822", text: "#f8f8f2", comment: "#75715e", keyword: "#f92672", string: "#e6db74", function: "#a6e22e", number: "#ae81ff" }
+        };
+
+        // Cache Node Pointers
+        const codeInput = document.getElementById('codeInput');
+        const charCountBadge = document.getElementById('charCountBadge');
+        const languageSelect = document.getElementById('languageSelect');
+        const themeSelect = document.getElementById('themeSelect');
+        const fontSelect = document.getElementById('fontSelect');
+        const fontSizeSlider = document.getElementById('fontSizeSlider');
+        const fontSizeVal = document.getElementById('fontSizeVal');
+        const frameWidthSlider = document.getElementById('frameWidthSlider');
+        const frameWidthVal = document.getElementById('frameWidthVal');
+        const frameHeightSlider = document.getElementById('frameHeightSlider');
+        const frameHeightVal = document.getElementById('frameHeightVal');
+        const bgGradientSelect = document.getElementById('bgGradientSelect');
+        const speedSlider = document.getElementById('speedSlider');
+        const speedVal = document.getElementById('speedVal');
+        const macOSFrameToggle = document.getElementById('macOSFrameToggle');
+        const modeScaleBtn = document.getElementById('modeScaleBtn');
+        const modeScrollBtn = document.getElementById('modeScrollBtn');
+        const scaleConfigSubpanel = document.getElementById('scaleConfigSubpanel');
+        const scrollConfigSubpanel = document.getElementById('scrollConfigSubpanel');
+        const charLimitSlider = document.getElementById('charLimitSlider');
+        const charLimitVal = document.getElementById('charLimitVal');
+        const generateBtn = document.getElementById('generateBtn');
+        const btnIcon = document.getElementById('btnIcon');
+        const btnText = document.getElementById('btnText');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressPercent = document.getElementById('progressPercent');
+        const progressBar = document.getElementById('progressBar');
+        const canvas = document.getElementById('videoCanvas');
+        const ctx = canvas.getContext('2d');
+        const studioTheater = document.getElementById('studioTheater');
+        const canvasScaleContainer = document.getElementById('canvasScaleContainer');
+
+        let activeOverflowMode = 'scale';
+        let defaultLuaCode = ``;
+        codeInput.value = defaultLuaCode;
+
+        // Viewport Matrix Scale Handlers
+        function resizeTheaterViewport() {
+            const padX = 48; const padY = 48;
+            const containerWidth = studioTheater.clientWidth - padX;
+            const containerHeight = studioTheater.clientHeight - padY;
+            const targetWidth = 1920; const targetHeight = 1080;
+            const scaleFactor = Math.min(containerWidth / targetWidth, containerHeight / targetHeight);
+            
+            canvasScaleContainer.style.width = `${targetWidth}px`;
+            canvasScaleContainer.style.height = `${targetHeight}px`;
+            canvasScaleContainer.style.transform = `scale(${scaleFactor})`;
+        }
+        
+        const resizeObserver = new ResizeObserver(() => { resizeTheaterViewport(); });
+        resizeObserver.observe(studioTheater);
+        window.addEventListener('resize', resizeTheaterViewport);
+        setTimeout(resizeTheaterViewport, 50);
+
+        // Slider Dynamic Value Printers Trackers Setup
+        fontSizeSlider.addEventListener('input', (e) => { fontSizeVal.textContent = `${e.target.value}px`; renderStaticPreview(); });
+        frameWidthSlider.addEventListener('input', (e) => { frameWidthVal.textContent = `${e.target.value}px`; renderStaticPreview(); });
+        frameHeightSlider.addEventListener('input', (e) => { frameHeightVal.textContent = `${e.target.value}px`; renderStaticPreview(); });
+        speedSlider.addEventListener('input', (e) => { speedVal.textContent = `${e.target.value} char/s`; });
+        charLimitSlider.addEventListener('input', (e) => { charLimitVal.textContent = e.target.value; enforceCharacterLimits(); renderStaticPreview(); });
+
+        codeInput.addEventListener('input', () => { enforceCharacterLimits(); renderStaticPreview(); });
+
+        function enforceCharacterLimits() {
+            const currentLen = codeInput.value.length;
+            charCountBadge.textContent = `${currentLen} chars`;
+            
+            if (activeOverflowMode === 'scale') {
+                const maxThreshold = parseInt(charLimitSlider.value);
+                if (currentLen > maxThreshold) {
+                    codeInput.value = codeInput.value.substring(0, maxThreshold);
+                    charCountBadge.textContent = `${maxThreshold} chars (Max)`;
+                    charCountBadge.classList.add('text-amber-400');
+                } else { charCountBadge.classList.remove('text-amber-400'); }
+            } else { charCountBadge.classList.remove('text-amber-400'); }
+        }
+
+        modeScaleBtn.addEventListener('click', () => {
+            activeOverflowMode = 'scale';
+            modeScaleBtn.className = "px-2 py-1.5 text-[11px] font-medium rounded-md border bg-indigo-600/10 border-indigo-500 text-indigo-300 transition-all flex items-center justify-center gap-1 cursor-pointer";
+            modeScrollBtn.className = "px-2 py-1.5 text-[11px] font-medium rounded-md border bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200 transition-all flex items-center justify-center gap-1 cursor-pointer";
+            scaleConfigSubpanel.classList.remove('hidden'); scrollConfigSubpanel.classList.add('hidden');
+            enforceCharacterLimits(); renderStaticPreview();
+        });
+
+        modeScrollBtn.addEventListener('click', () => {
+            activeOverflowMode = 'scroll';
+            modeScrollBtn.className = "px-2 py-1.5 text-[11px] font-medium rounded-md border bg-indigo-600/10 border-indigo-500 text-indigo-300 transition-all flex items-center justify-center gap-1 cursor-pointer";
+            modeScaleBtn.className = "px-2 py-1.5 text-[11px] font-medium rounded-md border bg-slate-900 border-slate-800 text-slate-400 hover:text-slate-200 transition-all flex items-center justify-center gap-1 cursor-pointer";
+            scaleConfigSubpanel.classList.add('hidden'); scrollConfigSubpanel.classList.remove('hidden');
+            enforceCharacterLimits(); renderStaticPreview();
+        });
+
+        [languageSelect, themeSelect, fontSelect, bgGradientSelect, macOSFrameToggle, frameWidthSlider, frameHeightSlider].forEach(elem => {
+            elem.addEventListener('input', renderStaticPreview);
+        });
+
+        function getRenderParams() {
+            return {
+                code: codeInput.value,
+                lang: languageSelect.value,
+                theme: themes[themeSelect.value],
+                fontName: fontSelect.value,
+                fontSize: parseInt(fontSizeSlider.value),
+                frameWidth: parseInt(frameWidthSlider.value),
+                frameHeight: parseInt(frameHeightSlider.value),
+                bgStyle: bgGradientSelect.value,
+                speed: parseInt(speedSlider.value),
+                showMacFrame: macOSFrameToggle.checked
+            };
+        }
+
+        // Structural Prism Syntax Highlighter Token Processing Engine
+        function tokenizeAndWrapCode(code, lang, themeColors, maxWidth, currentFontSize) {
+            // Handle internal Fallback aliases map
+            let prismLang = lang;
+            if (lang === 'markup') prismLang = 'markup';
+            if (!Prism.languages[prismLang]) prismLang = 'javascript';
+            
+            const prismTokens = Prism.tokenize(code, Prism.languages[prismLang]);
+            let lines = [[]];
+            
+            function processToken(token, currentStyle) {
+                if (typeof token === 'string') {
+                    const split = token.split('\n');
+                    for (let i = 0; i < split.length; i++) {
+                        if (i > 0) lines.push([]);
+                        if (split[i]) { lines[lines.length - 1].push({ text: split[i], color: currentStyle }); }
+                    }
+                } else {
+                    let type = token.type;
+                    let color = themeColors.text;
+                    if (themeColors[type]) color = themeColors[type];
+                    
+                    if (typeof token.content === 'string') { processToken(token.content, color); } 
+                    else if (Array.isArray(token.content)) { token.content.forEach(sub => processToken(sub, color)); }
+                }
+            }
+            
+            prismTokens.forEach(tok => processToken(tok, themeColors.text));
+
+            let wrappedLines = [];
+            lines.forEach(line => {
+                let currentWrappedLine = []; let currentWidth = 0;
+                line.forEach(token => {
+                    let words = token.text.split(/(\s+)/);
+                    words.forEach(word => {
+                        ctx.font = `${currentFontSize * 1.3}px "${fontSelect.value}"`;
+                        let wordWidth = ctx.measureText(word).width;
+
+                        if (currentWidth + wordWidth > maxWidth && currentWidth > 0) {
+                            wrappedLines.push(currentWrappedLine);
+                            currentWrappedLine = [];
+                            let indent = "    ";
+                            currentWrappedLine.push({ text: indent, color: themeColors.comment });
+                            currentWidth = ctx.measureText(indent).width;
+                        }
+                        currentWrappedLine.push({ text: word, color: token.color });
+                        currentWidth += wordWidth;
+                    });
+                });
+                wrappedLines.push(currentWrappedLine);
+            });
+            return wrappedLines;
+        }
+
+        // High Fidelity Frame Painter
+        function drawCanvasSnapshot(progressCharCount, params) {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Render Background Gradient Elements 
+            const gradientParts = params.bgStyle.match(/#([0-9a-fA-F]{3,8})/g);
+            if (gradientParts && gradientParts.length >= 2) {
+                let gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+                gradient.addColorStop(0, gradientParts[0]);
+                gradient.addColorStop(1, gradientParts[gradientParts.length - 1]);
+                ctx.fillStyle = gradient;
+            } else { ctx.fillStyle = "#0f172a"; }
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            const winWidth = params.frameWidth; const winHeight = params.frameHeight;
+            const winX = (canvas.width - winWidth) / 2; const winY = (canvas.height - winHeight) / 2;
+
+            ctx.shadowColor = "rgba(0, 0, 0, 0.6)"; ctx.shadowBlur = 60; ctx.shadowOffsetY = 30;
+            ctx.fillStyle = params.theme.bg;
+            ctx.beginPath(); ctx.roundRect(winX, winY, winWidth, winHeight, 16); ctx.fill();
+            ctx.shadowColor = "transparent"; ctx.shadowBlur = 0; ctx.shadowOffsetY = 0;
+
+            let codeTopOffset = winY + 40;
+            if (params.showMacFrame) {
+                const dotY = winY + 28;
+                ctx.fillStyle = "#ff5f56"; ctx.beginPath(); ctx.arc(winX + 30, dotY, 7, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = "#ffbd2e"; ctx.beginPath(); ctx.arc(winX + 52, dotY, 7, 0, Math.PI * 2); ctx.fill();
+                ctx.fillStyle = "#27c93f"; ctx.beginPath(); ctx.arc(winX + 74, dotY, 7, 0, Math.PI * 2); ctx.fill();
+                codeTopOffset = winY + 65;
+            }
+
+            ctx.save();
+            ctx.beginPath(); ctx.roundRect(winX + 10, winY + 10, winWidth - 20, winHeight - 20, 12); ctx.clip();
+
+            const paddingLeft = winX + 45; const maxTextWidth = winWidth - 90;
+            const maxVerticalAllowedSpace = winHeight - (codeTopOffset - winY) - 45;
+
+            let slicedCode = params.code.substring(0, progressCharCount);
+            let currentFontSize = params.fontSize;
+
+            let wrappedTokenLines = tokenizeAndWrapCode(slicedCode, params.lang, params.theme, maxTextWidth, currentFontSize);
+            let lineSpacing = (currentFontSize * 1.3) * 1.7;
+
+            if (activeOverflowMode === 'scale') {
+                while ((wrappedTokenLines.length * lineSpacing) > maxVerticalAllowedSpace && currentFontSize > 10) {
+                    currentFontSize -= 0.5;
+                    lineSpacing = (currentFontSize * 1.3) * 1.7;
+                    wrappedTokenLines = tokenizeAndWrapCode(slicedCode, params.lang, params.theme, maxTextWidth, currentFontSize);
+                }
+            }
+
+            ctx.font = `${currentFontSize * 1.3}px "${params.fontName}"`;
+            ctx.textBaseline = "top";
+
+            let renderYStartOffset = codeTopOffset;
+            const totalContentHeight = wrappedTokenLines.length * lineSpacing;
+            if (activeOverflowMode === 'scroll' && totalContentHeight > maxVerticalAllowedSpace) {
+                renderYStartOffset = codeTopOffset - (totalContentHeight - maxVerticalAllowedSpace);
+            }
+
+            let currentY = renderYStartOffset;
+            wrappedTokenLines.forEach((line) => {
+                if (currentY >= codeTopOffset - lineSpacing && currentY <= winY + winHeight - 25) {
+                    let currentX = paddingLeft;
+                    line.forEach((token) => {
+                        ctx.fillStyle = token.color;
+                        ctx.fillText(token.text, currentX, currentY);
+                        currentX += ctx.measureText(token.text).width;
+                    });
+                }
+                currentY += lineSpacing;
+            });
+
+            if (wrappedTokenLines.length > 0) {
+                let lastLine = wrappedTokenLines[wrappedTokenLines.length - 1];
+                let cursorX = paddingLeft;
+                lastLine.forEach(t => { cursorX += ctx.measureText(t.text).width; });
+                let cursorY = currentY - lineSpacing;
+
+                if (slicedCode.endsWith('\n')) { cursorX = paddingLeft; cursorY = currentY; }
+
+                if (Math.floor(Date.now() / 350) % 2 === 0 && cursorY >= codeTopOffset && cursorY <= winY + winHeight - 35) {
+                    ctx.fillStyle = params.theme.keyword;
+                    ctx.fillRect(cursorX + 2, cursorY + 2, 2.5, currentFontSize * 1.4);
+                }
+            }
+            ctx.restore();
+        }
+
+        function renderStaticPreview() { drawCanvasSnapshot(getRenderParams().code.length, getRenderParams()); }
+
+        function activePreviewPulseLoop() {
+            if (generateBtn.disabled === false) { renderStaticPreview(); }
+            requestAnimationFrame(activePreviewPulseLoop);
+        }
+        requestAnimationFrame(activePreviewPulseLoop);
+
+        // Core MP4 Video Compiling Stream
+        async function buildAndExportVideo() {
+            const params = getRenderParams();
+            if (!params.code.trim()) return alert("Document buffer cannot be empty!");
+
+            generateBtn.disabled = true;
+            progressContainer.classList.remove('hidden');
+            btnText.textContent = "Compiling 60FPS Bitstream...";
+            btnIcon.setAttribute('data-lucide', 'loader-2');
+            btnIcon.classList.add('animate-spin');
+            lucide.createIcons();
+
+            const totalCharacters = params.code.length;
+            const canvasStream = canvas.captureStream(60);
+            
+            let codecOptions = { mimeType: 'video/webm;codecs=vp9', videoBitsPerSecond: 12000000 };
+            if (!MediaRecorder.isTypeSupported(codecOptions.mimeType)) {
+                codecOptions = { mimeType: 'video/webm;codecs=vp8', videoBitsPerSecond: 12000000 };
+            }
+
+            let recordedChunks = [];
+            const recorder = new MediaRecorder(canvasStream, codecOptions);
+            recorder.ondataavailable = (e) => { if (e.data.size > 0) recordedChunks.push(e.data); };
+            
+            recorder.onstop = () => {
+                const videoBlob = new Blob(recordedChunks, { type: 'video/webm' });
+                const videoUrl = URL.createObjectURL(videoBlob);
+                const anchorLink = document.createElement('a');
+                anchorLink.href = videoUrl;
+                anchorLink.download = `codeflix-studio-1080p.mp4`;
+                document.body.appendChild(anchorLink);
+                anchorLink.click();
+                document.body.removeChild(anchorLink);
+
+                generateBtn.disabled = false;
+                progressContainer.classList.add('hidden');
+                btnText.textContent = "Compile High-Fidelity MP4";
+                btnIcon.setAttribute('data-lucide', 'play');
+                btnIcon.classList.remove('animate-spin');
+                lucide.createIcons();
+            };
+
+            recorder.start();
+
+            let characterPoolCounter = 0;
+            let lastTimestamp = performance.now();
+
+            function animationFrameStep(currentTimestamp) {
+                const deltaTime = (currentTimestamp - lastTimestamp) / 1000; 
+                lastTimestamp = currentTimestamp;
+
+                if (characterPoolCounter < totalCharacters) {
+                    characterPoolCounter += params.speed * deltaTime;
+                    let renderCharCount = Math.min(totalCharacters, Math.floor(characterPoolCounter));
+
+                    drawCanvasSnapshot(renderCharCount, params);
+
+                    const percentComplete = Math.floor((renderCharCount / totalCharacters) * 100);
+                    progressBar.style.width = `${percentComplete}%`;
+                    progressPercent.textContent = `${percentComplete}%`;
+
+                    requestAnimationFrame(animationFrameStep);
+                } else {
+                    btnText.textContent = "Finalizing Container Wraps...";
+                    setTimeout(() => { recorder.stop(); }, 1500);
+                }
+            }
+
+            requestAnimationFrame((timestamp) => {
+                lastTimestamp = timestamp;
+                animationFrameStep(timestamp);
+            });
+        }
+
+        generateBtn.addEventListener('click', buildAndExportVideo);
+    </script>
+</body>
+</html>
